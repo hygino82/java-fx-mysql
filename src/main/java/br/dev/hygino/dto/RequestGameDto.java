@@ -7,6 +7,7 @@ public record RequestGameDto(
         String genre,
         String platform,
         LocalDate releaseDate,
-        String developer) {
+        String developer,
+        String personalCode) {
 
 }

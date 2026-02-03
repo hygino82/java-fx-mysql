@@ -1,12 +1,8 @@
 package br.dev.hygino.controller;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import br.dev.hygino.dto.RequestGameDto;
+import br.dev.hygino.service.GameService;
 import java.time.LocalDate;
-
-import br.dev.hygino.db.MySQLConfig;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -16,8 +12,26 @@ import javafx.scene.control.TextField;
 
 public class ViewController {
 
+    private GameService service = GameService.getInstance();
+
+    final String[] consoles = {
+        "Mega Drive",
+        "Super Nintendo",
+        "Nintendo",
+        "Nintendo 64",
+        "Nintendo WII",
+        "XBOX",
+        "XBOX 360",
+        "XBOX ONE",
+        "PlayStation",
+        "PlayStation 2",
+        "PlayStation 3",
+        "PlayStation 4",
+        "PlayStation 5"
+    };
+
     @FXML
-    private Button btnTest;
+    private Button btnInsertGame;
 
     @FXML
     private TextField txtName;
@@ -38,35 +52,37 @@ public class ViewController {
     private TextField txtPersonalCode;
 
     @FXML
+    public void initialize() {
+        choicePlatform.getItems().addAll(consoles);
+    }
+
+    @FXML
     public void btnTestAction(ActionEvent event) {
         System.out.println("Button clicked!");
         insertGame();
     }
 
     private void insertGame() {
+        final String name = txtName.getText();
+        final String genre = txtGenre.getText();
+        final String personalCode = txtPersonalCode.getText();
+        final String developer = txtDeveloper.getText();
+        final LocalDate releaseDate = datePickerReleaseDate.getValue();
+        final String plataform = choicePlatform.getValue();
+        final RequestGameDto dto = new RequestGameDto(name, genre, plataform, releaseDate, developer, personalCode);
 
-        String sql = """
-                INSERT INTO game
-                (name, genre, platform, release_date, developer, personal_code)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """;
+        System.out.println(dto);
 
-        try (Connection conn = MySQLConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        service.insertGame(dto);
+        clearFields();
+    }
 
-            ps.setString(1, "The Last of Us");
-            ps.setString(2, "Action-adventure");
-            ps.setString(3, "PlayStation 4");
-            ps.setDate(4, Date.valueOf(LocalDate.of(2013, 6, 14)));
-            ps.setString(5, "Naughty Dog");
-            ps.setString(6, "TLU123");
-
-            ps.executeUpdate();
-
-            System.out.println("Game inserido com sucesso!");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private void clearFields() {
+        txtName.setText("");
+        txtGenre.setText("");
+        txtPersonalCode.setText("");
+        txtDeveloper.setText("");
+        datePickerReleaseDate.setValue(LocalDate.of(2014, 2, 23));
+        txtName.requestFocus();
     }
 }

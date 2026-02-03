@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Program extends Application {
+
     @Override
     public void start(Stage stage) {
         try {
@@ -18,7 +19,7 @@ public class Program extends Application {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Erro ao ler o arquivo FXML!");
         }
     }
 
