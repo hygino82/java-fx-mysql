@@ -57,13 +57,13 @@ public class GameService {
     public List<Game> findGames(String name, String platform, String personalCode) {
         List<Game> gameList = new ArrayList<>();
 
-       String sql = """
-             SELECT * FROM Game 
-             WHERE LOWER(name) LIKE LOWER(CONCAT('%', IFNULL(?, name), '%'))
-             AND LOWER(platform) = LOWER(IFNULL(?, platform))
-             AND LOWER(personal_code) = LOWER(IFNULL(?, personal_code))
-             """;
-       
+        String sql = """
+                SELECT * FROM Game
+                WHERE LOWER(name) LIKE LOWER(CONCAT('%', IFNULL(?, name), '%'))
+                AND LOWER(platform) = LOWER(IFNULL(?, platform))
+                AND LOWER(personal_code) = LOWER(IFNULL(?, personal_code))
+                """;
+
         try (Connection conn = MySQLConfig.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, name);
             ps.setString(2, platform);
@@ -80,8 +80,7 @@ public class GameService {
                             rs.getString("developer"),
                             rs.getString("personal_code"),
                             rs.getObject("created_at", LocalDateTime.class),
-                            rs.getObject("updated_at", LocalDateTime.class)
-                    );
+                            rs.getObject("updated_at", LocalDateTime.class));
 
                     gameList.add(game);
                 }

@@ -19,7 +19,7 @@ public class Program extends Application {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            System.out.println("Erro ao ler o arquivo FXML!");
+           e.printStackTrace();
         }
     }
 
