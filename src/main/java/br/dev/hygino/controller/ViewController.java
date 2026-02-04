@@ -11,9 +11,9 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 
 public class ViewController {
-
+    
     private GameService service = GameService.getInstance();
-
+    
     final String[] consoles = {
         "Mega Drive",
         "Super Nintendo",
@@ -29,39 +29,43 @@ public class ViewController {
         "PlayStation 4",
         "PlayStation 5"
     };
-
+    
     @FXML
     private Button btnInsertGame;
-
+    
     @FXML
     private TextField txtName;
-
+    
     @FXML
     private TextField txtGenre;
-
+    
     @FXML
     private ChoiceBox<String> choicePlatform;
-
+    
     @FXML
     private DatePicker datePickerReleaseDate;
-
+    
     @FXML
     private TextField txtDeveloper;
-
+    
     @FXML
     private TextField txtPersonalCode;
-
+    
     @FXML
     public void initialize() {
         choicePlatform.getItems().addAll(consoles);
+        
+        System.out.println("Lista de Jogos");
+        var gamelist = service.findGames(null, "PlayStation 3", null);
+        gamelist.forEach(System.out::println);
     }
-
+    
     @FXML
     public void btnTestAction(ActionEvent event) {
         System.out.println("Button clicked!");
         insertGame();
     }
-
+    
     private void insertGame() {
         final String name = txtName.getText();
         final String genre = txtGenre.getText();
@@ -70,13 +74,13 @@ public class ViewController {
         final LocalDate releaseDate = datePickerReleaseDate.getValue();
         final String plataform = choicePlatform.getValue();
         final RequestGameDto dto = new RequestGameDto(name, genre, plataform, releaseDate, developer, personalCode);
-
+        
         System.out.println(dto);
-
+        
         service.insertGame(dto);
         clearFields();
     }
-
+    
     private void clearFields() {
         txtName.setText("");
         txtGenre.setText("");
