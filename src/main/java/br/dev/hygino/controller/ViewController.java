@@ -1,18 +1,17 @@
 package br.dev.hygino.controller;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import br.dev.hygino.dto.RequestGameDto;
 import br.dev.hygino.model.Game;
 import br.dev.hygino.service.GameService;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -42,7 +41,16 @@ public class ViewController {
     private TableView<Game> tableViewGames;
 
     @FXML
+    private Label lbLog;
+
+    @FXML
+    private Button btnClear;
+
+    @FXML
     private Button btnInsertGame;
+
+    @FXML
+    private Button btnSearch;
 
     @FXML
     private TextField txtName;
@@ -78,12 +86,28 @@ public class ViewController {
         colDataAtualizacao.setCellValueFactory(new PropertyValueFactory<>("updatedAt"));
 
         loadTableData();
+        lbLog.setText("Dados Carregados!");
     }
 
     @FXML
     public void btnTestAction(ActionEvent event) {
         System.out.println("Button clicked!");
         insertGame();
+    }
+
+    @FXML
+    public void btnClearAction(ActionEvent event) {
+        clearFields();
+    }
+
+    @FXML
+    public void btnFindAction(ActionEvent event) {
+        lbLog.setText("Busca realizada!");
+        final String name = verifyString(txtName.getText());
+        final String personalCode = verifyString(txtPersonalCode.getText());
+        final String plataform = verifyString(choicePlatform.getValue());
+
+        findGames(name, plataform, personalCode);
     }
 
     private void insertGame() {
@@ -99,6 +123,9 @@ public class ViewController {
 
         service.insertGame(dto);
         clearFields();
+
+        loadTableData();
+        lbLog.setText("Jogo inserido com sucesso!");
     }
 
     private void clearFields() {
@@ -108,6 +135,7 @@ public class ViewController {
         txtDeveloper.setText("");
         datePickerReleaseDate.setValue(LocalDate.of(2014, 2, 23));
         txtName.requestFocus();
+        lbLog.setText("Campos Limpos!");
     }
 
     @FXML
@@ -143,4 +171,13 @@ public class ViewController {
                         service.findGames(null, null, null)));
     }
 
+    private void findGames(String name, String plataform, String personalCode) {
+        tableViewGames.setItems(
+                FXCollections.observableArrayList(
+                        service.findGames(name, plataform, personalCode)));
+    }
+
+    private String verifyString(String text) {
+        return (text == null || text == "") ? null : text;
+    }
 }
