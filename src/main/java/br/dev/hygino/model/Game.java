@@ -1,11 +1,11 @@
 package br.dev.hygino.model;
 
-
+import br.dev.hygino.dto.ResponseGameDto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-
 public class Game {
+
     Long id;
     String name;
     String genre;
@@ -106,5 +106,9 @@ public class Game {
     @Override
     public String toString() {
         return "Game{" + "id=" + id + ", name=" + name + ", genre=" + genre + ", platform=" + platform + ", releaseDate=" + releaseDate + ", developer=" + developer + ", personalCode=" + personalCode + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + '}';
+    }
+
+    public ResponseGameDto toGameResponse() {
+        return new ResponseGameDto(id, name, genre, platform, releaseDate, developer, personalCode, createdAt, updatedAt);
     }
 }

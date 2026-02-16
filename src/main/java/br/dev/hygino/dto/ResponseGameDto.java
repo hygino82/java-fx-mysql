@@ -10,6 +10,7 @@ public record ResponseGameDto(
                 String platform,
                 LocalDate releaseDate,
                 String developer,
+                String personalCode,
                 LocalDateTime createdAt,
                 LocalDateTime updatedAt) {
 

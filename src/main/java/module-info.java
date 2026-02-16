@@ -5,6 +5,8 @@ module br.dev.hygino {
     requires java.sql;
     // requires com.mysql.cj;
     requires static lombok;
+    requires java.desktop;
+    requires java.logging;
 
     opens br.dev.hygino.model to javafx.base;
 
