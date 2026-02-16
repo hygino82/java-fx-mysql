@@ -24,12 +24,15 @@ public class GameApp extends javax.swing.JFrame {
 
     private List<ResponseGameDto> gamelist;
 
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(GameApp.class.getName());
 
     /**
      * Creates new form GameApp
      */
     public GameApp() {
+        setTitle("Gerenciador de jogos");
         initComponents();
     }
 
@@ -76,17 +79,21 @@ public class GameApp extends javax.swing.JFrame {
 
         lbConsole.setText("Console");
 
-        cbConsoles.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mega Drive", "Super Nintendo", "Nintendo", "Nintendo 64", "Nintendo WII", "XBOX", "XBOX 360", "XBOX ONE", "PlayStation", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation 5" }));
+        cbConsoles.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "Mega Drive", "Super Nintendo", "Nintendo", "Nintendo 64", "Nintendo WII", "XBOX", "XBOX 360", "XBOX ONE", "PlayStation", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation 5" }));
 
         lbCode.setText("Código");
 
         lbGenre.setText("Gênero");
 
+        btnClear.setBackground(new java.awt.Color(255, 102, 102));
         btnClear.setLabel("Limpar");
         btnClear.addActionListener(this::btnClearActionPerformed);
 
+        btnFind.setBackground(new java.awt.Color(204, 255, 204));
         btnFind.setLabel("Buscar");
+        btnFind.addActionListener(this::btnFindActionPerformed);
 
+        btnSave.setBackground(new java.awt.Color(102, 102, 255));
         btnSave.setLabel("Salvar");
         btnSave.addActionListener(this::btnSaveActionPerformed);
 
@@ -120,18 +127,6 @@ public class GameApp extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(lbStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(btnClear)
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(0, 0, Short.MAX_VALUE)
-                                        .addComponent(txtGenre, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(btnFind)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnSave)
-                                        .addGap(0, 0, Short.MAX_VALUE))))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(lbGenre, javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(lbCode, javax.swing.GroupLayout.Alignment.LEADING)
@@ -157,7 +152,17 @@ public class GameApp extends javax.swing.JFrame {
                                                 .addComponent(txtDate, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addComponent(txtCode, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addComponent(cbConsoles, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(txtGenre, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(btnClear)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnFind)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnSave)))))
                         .addGap(510, 510, 510))))
         );
         layout.setVerticalGroup(
@@ -199,8 +204,6 @@ public class GameApp extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        lbStatus.getAccessibleContext().setAccessibleName("STATUS");
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -215,6 +218,10 @@ public class GameApp extends javax.swing.JFrame {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         saveGame();
     }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
+        findGames();
+    }//GEN-LAST:event_btnFindActionPerformed
 
     /**
      * @param args the command line arguments
@@ -269,7 +276,8 @@ public class GameApp extends javax.swing.JFrame {
         txtDeveloper.setText("");
         txtName.setText("");
         txtName.requestFocus();
-        cbConsoles.setSelectedIndex(8);
+        cbConsoles.setSelectedIndex(9);
+        lbStatus.setText("");
     }
 
     private void loadData(String name, String console, String code) {
@@ -282,13 +290,12 @@ public class GameApp extends javax.swing.JFrame {
         // Limpe todas as linhas existentes da tabela
         // Isso é importante para remover os dados antigos antes de adicionar os novos
         model.setRowCount(0);
-
         // Adicione os dados da sua gamelist ao modelo da tabela
         for (ResponseGameDto game : gamelist) {
             // Crie um array de objetos para cada linha.
             // A ordem dos campos aqui DEVE corresponder à ordem das colunas configuradas no NetBeans.
             // Ajuste para pegar os campos corretos da sua classe GameResponse
-            Object[] rowData = {game.id(), game.name(), game.platform(), game.developer(), game.releaseDate(), game.personalCode(), game.genre()}; // Exemplo
+            Object[] rowData = {game.id(), game.name(), game.platform(), game.developer(), formatter.format(game.releaseDate()), game.personalCode(), game.genre()}; // Exemplo
             model.addRow(rowData);
         }
 
@@ -301,9 +308,13 @@ public class GameApp extends javax.swing.JFrame {
         try {
             String name = txtName.getText();
             String code = txtCode.getText();
+
+            if (cbConsoles.getSelectedIndex() == 0) {
+                throw new IllegalArgumentException("Console com opção inválida");
+            }
+
             String console = (String) cbConsoles.getSelectedItem();
             String developer = txtDeveloper.getText();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate releaseDate = LocalDate.parse(txtDate.getText(), formatter);
             String genre = txtGenre.getText();
 
@@ -314,7 +325,18 @@ public class GameApp extends javax.swing.JFrame {
 
             loadData(null, null, null);
         } catch (Exception e) {
-
+            lbStatus.setText(e.getMessage());
         }
+    }
+
+    private void findGames() {
+        String name = (txtName.getText().isBlank()) ? null : txtName.getText();
+        String code = (txtCode.getText().isBlank()) ? null : txtCode.getText();
+
+        String console = (cbConsoles.getSelectedIndex() == 0) ? null : cbConsoles.getSelectedItem().toString();
+
+        System.out.printf("%s\n%s\n%s\n", name, code, console);
+
+        loadData(name, console, code);
     }
 }
