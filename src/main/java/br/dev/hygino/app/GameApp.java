@@ -11,6 +11,7 @@ import br.dev.hygino.service.GameService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
@@ -67,6 +68,7 @@ public class GameApp extends javax.swing.JFrame {
         lbStatus = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbGames = new javax.swing.JTable();
+        btnDelete = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -90,7 +92,7 @@ public class GameApp extends javax.swing.JFrame {
 
         lbGenre.setText("Gênero");
 
-        btnClear.setBackground(new java.awt.Color(255, 102, 102));
+        btnClear.setBackground(new java.awt.Color(255, 255, 153));
         btnClear.setLabel("Limpar");
         btnClear.addActionListener(this::btnClearActionPerformed);
 
@@ -122,6 +124,10 @@ public class GameApp extends javax.swing.JFrame {
             }
         });
         jScrollPane1.setViewportView(tbGames);
+
+        btnDelete.setBackground(new java.awt.Color(255, 102, 51));
+        btnDelete.setText("Remover");
+        btnDelete.addActionListener(this::btnDeleteActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -173,7 +179,9 @@ public class GameApp extends javax.swing.JFrame {
                                         .addComponent(btnFind)
                                         .addGap(18, 18, 18)
                                         .addComponent(btnSave)))))
-                        .addGap(510, 510, 510))))
+                        .addGap(18, 18, 18)
+                        .addComponent(btnDelete)
+                        .addGap(374, 374, 374))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -206,7 +214,8 @@ public class GameApp extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnClear)
                     .addComponent(btnFind)
-                    .addComponent(btnSave))
+                    .addComponent(btnSave)
+                    .addComponent(btnDelete))
                 .addGap(18, 18, 18)
                 .addComponent(lbStatus)
                 .addGap(18, 18, 18)
@@ -253,6 +262,35 @@ public class GameApp extends javax.swing.JFrame {
         populateFields(name, console, developer, date, code, genre);
     }//GEN-LAST:event_tbGamesMouseClicked
 
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        try {
+
+            if (id < 1) {
+                throw new IllegalArgumentException("Id inválido");
+            }
+
+            int confirmacao = JOptionPane.showConfirmDialog(
+                    this,
+                    "Tem certeza que deseja remover este jogo?",
+                    "Confirmar exclusão",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            if (confirmacao == JOptionPane.YES_OPTION) {
+                service.removeGame(id);
+                lbStatus.setText("Jogo removido com sucesso!");
+            }
+
+        } catch (IllegalArgumentException e) {
+            lbStatus.setText(e.getMessage());
+        }
+
+        clearFields();
+        editMode = false;
+        loadData(null, null, null);
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -280,6 +318,7 @@ public class GameApp extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnFind;
     private javax.swing.JButton btnSave;
     private javax.swing.JComboBox<String> cbConsoles;
@@ -374,10 +413,10 @@ public class GameApp extends javax.swing.JFrame {
     }
 
     private void findGames() {
-        String name = (txtName.getText().isBlank()) ? null : txtName.getText();
-        String code = (txtCode.getText().isBlank()) ? null : txtCode.getText();
+        name = (txtName.getText().isBlank()) ? null : txtName.getText();
+        code = (txtCode.getText().isBlank()) ? null : txtCode.getText();
 
-        String console = (cbConsoles.getSelectedIndex() == 0) ? null : cbConsoles.getSelectedItem().toString();
+        console = (cbConsoles.getSelectedIndex() == 0) ? null : cbConsoles.getSelectedItem().toString();
 
         System.out.printf("%s\n%s\n%s\n", name, code, console);
 

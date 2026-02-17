@@ -127,4 +127,23 @@ public class GameService {
             throw new RuntimeException("Erro ao buscar os jogos!", e);
         }
     }
+
+    public void removeGame(long id) {
+
+        String sql = "DELETE FROM Game WHERE id = ?";
+
+        try (Connection conn = MySQLConfig.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new RuntimeException("Nenhum jogo encontrado com id: " + id);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao remover o jogo!", e);
+        }
+    }
 }
