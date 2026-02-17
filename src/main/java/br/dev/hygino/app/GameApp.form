@@ -189,6 +189,7 @@
             <StringItem index="13" value="PlayStation 5"/>
           </StringArray>
         </Property>
+        <Property name="selectedIndex" type="int" value="3"/>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
@@ -268,6 +269,9 @@
             </Property>
             <Property name="showGrid" type="boolean" value="true"/>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tbGamesMouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

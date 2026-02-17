@@ -54,6 +54,43 @@ public class GameService {
         }
     }
 
+    public void updateGame(long id, RequestGameDto dto) {
+
+        String sql = """
+            UPDATE Game
+            SET name = ?,
+                genre = ?,
+                platform = ?,
+                release_date = ?,
+                developer = ?,
+                personal_code = ?
+            WHERE id = ?
+            """;
+
+        try (Connection conn = MySQLConfig.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, dto.name());
+            ps.setString(2, dto.genre());
+            ps.setString(3, dto.platform());
+            ps.setDate(4, Date.valueOf(dto.releaseDate()));
+            ps.setString(5, dto.developer());
+            ps.setString(6, dto.personalCode());
+            ps.setLong(7, id);
+
+            int linhasAfetadas = ps.executeUpdate();
+
+            if (linhasAfetadas > 0) {
+                System.out.println("Game atualizado com sucesso!");
+            } else {
+                System.out.println("Nenhum game encontrado com esse ID.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar o jogo!");
+            e.printStackTrace();
+        }
+    }
+
     public List<Game> findGames(String name, String platform, String personalCode) {
         List<Game> gameList = new ArrayList<>();
 

@@ -20,11 +20,15 @@ import javax.swing.table.DefaultTableModel;
  */
 public class GameApp extends javax.swing.JFrame {
 
-    private GameService service = GameService.getInstance();
+    boolean editMode = false;
+    private String name, code, developer, date, genre, console;
+    long id = 0L;
+
+    private final GameService service = GameService.getInstance();
 
     private List<ResponseGameDto> gamelist;
 
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(GameApp.class.getName());
 
@@ -80,6 +84,7 @@ public class GameApp extends javax.swing.JFrame {
         lbConsole.setText("Console");
 
         cbConsoles.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "Mega Drive", "Super Nintendo", "Nintendo", "Nintendo 64", "Nintendo WII", "XBOX", "XBOX 360", "XBOX ONE", "PlayStation", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation 5" }));
+        cbConsoles.setSelectedIndex(3);
 
         lbCode.setText("Código");
 
@@ -111,6 +116,11 @@ public class GameApp extends javax.swing.JFrame {
             }
         ));
         tbGames.setShowGrid(true);
+        tbGames.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbGamesMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tbGames);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -223,6 +233,26 @@ public class GameApp extends javax.swing.JFrame {
         findGames();
     }//GEN-LAST:event_btnFindActionPerformed
 
+    private void tbGamesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbGamesMouseClicked
+        int selectedRow = tbGames.getSelectedRow();
+        lbStatus.setText("Selecionada a linha " + (selectedRow + 1));
+        int linhaModel = tbGames.convertRowIndexToModel(selectedRow);
+
+        id = Long.valueOf(
+                tbGames.getModel().getValueAt(linhaModel, 0).toString()
+        );
+
+        name = tbGames.getModel().getValueAt(linhaModel, 1).toString();
+        console = tbGames.getModel().getValueAt(linhaModel, 2).toString();
+        developer = tbGames.getModel().getValueAt(linhaModel, 3).toString();
+        date = tbGames.getModel().getValueAt(linhaModel, 4).toString();
+        code = tbGames.getModel().getValueAt(linhaModel, 5).toString();
+        genre = tbGames.getModel().getValueAt(linhaModel, 6).toString();
+
+        editMode = true;
+        populateFields(name, console, developer, date, code, genre);
+    }//GEN-LAST:event_tbGamesMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -305,25 +335,39 @@ public class GameApp extends javax.swing.JFrame {
     }
 
     private void saveGame() {
+
         try {
-            String name = txtName.getText();
-            String code = txtCode.getText();
+            name = txtName.getText();
+            code = txtCode.getText();
 
             if (cbConsoles.getSelectedIndex() == 0) {
                 throw new IllegalArgumentException("Console com opção inválida");
             }
 
-            String console = (String) cbConsoles.getSelectedItem();
-            String developer = txtDeveloper.getText();
+            console = (String) cbConsoles.getSelectedItem();
+            developer = txtDeveloper.getText();
             LocalDate releaseDate = LocalDate.parse(txtDate.getText(), formatter);
-            String genre = txtGenre.getText();
+            genre = txtGenre.getText();
 
-            var request = new RequestGameDto(name, genre, console, releaseDate, developer, code);
+            var request = new RequestGameDto(
+                    name, genre, console, releaseDate, developer, code
+            );
 
-            this.service.insertGame(request);
+            // 🔹 INSERT
+            if (!editMode) {
+                this.service.insertGame(request);
+                lbStatus.setText("Jogo inserido!");
+
+            } // 🔹 UPDATE
+            else {
+                this.service.updateGame(id, request);
+                lbStatus.setText("Jogo atualizado!");
+            }
+
             clearFields();
-
             loadData(null, null, null);
+
+            editMode = false;
         } catch (Exception e) {
             lbStatus.setText(e.getMessage());
         }
@@ -338,5 +382,22 @@ public class GameApp extends javax.swing.JFrame {
         System.out.printf("%s\n%s\n%s\n", name, code, console);
 
         loadData(name, console, code);
+    }
+
+    private void populateFields(String name, String console, String developer, String date, String code, String genre) {
+        txtName.setText(name);
+
+        for (int i = 0; i < cbConsoles.getItemCount(); i++) {
+            String item = cbConsoles.getItemAt(i);
+
+            if (item.equals(console)) {
+                cbConsoles.setSelectedIndex(i);
+                break;
+            }
+        }
+        txtDeveloper.setText(developer);
+        txtDate.setText(date);
+        txtCode.setText(code);
+        txtGenre.setText(genre);
     }
 }
