@@ -4,6 +4,7 @@
  */
 package br.dev.hygino.app;
 
+import br.dev.hygino.app.exceptions.DatabaseException;
 import br.dev.hygino.dto.RequestGameDto;
 import br.dev.hygino.dto.ResponseGameDto;
 import br.dev.hygino.model.Game;
@@ -247,7 +248,7 @@ public class GameApp extends javax.swing.JFrame {
         lbStatus.setText("Selecionada a linha " + (selectedRow + 1));
         int linhaModel = tbGames.convertRowIndexToModel(selectedRow);
 
-        id = Long.valueOf(
+        id = Long.parseLong(
                 tbGames.getModel().getValueAt(linhaModel, 0).toString()
         );
 
@@ -282,7 +283,7 @@ public class GameApp extends javax.swing.JFrame {
                 lbStatus.setText("Jogo removido com sucesso!");
             }
 
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | DatabaseException e) {
             lbStatus.setText(e.getMessage());
         }
 
@@ -407,7 +408,7 @@ public class GameApp extends javax.swing.JFrame {
             loadData(null, null, null);
 
             editMode = false;
-        } catch (Exception e) {
+        } catch (DatabaseException e) {
             lbStatus.setText(e.getMessage());
         }
     }
@@ -418,8 +419,7 @@ public class GameApp extends javax.swing.JFrame {
 
         console = (cbConsoles.getSelectedIndex() == 0) ? null : cbConsoles.getSelectedItem().toString();
 
-        System.out.printf("%s\n%s\n%s\n", name, code, console);
-
+        //System.out.printf("%s\n%s\n%s\n", name, code, console);
         loadData(name, console, code);
     }
 

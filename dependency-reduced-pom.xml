@@ -8,7 +8,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>3.11.0</version>
         <configuration>
           <release>21</release>
           <annotationProcessorPaths>
@@ -26,21 +26,8 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.openjfx</groupId>
-        <artifactId>javafx-maven-plugin</artifactId>
-        <version>0.0.6</version>
-        <executions>
-          <execution>
-            <id>default-cli</id>
-            <configuration>
-              <mainClass>br.dev.hygino.app.Program</mainClass>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -50,7 +37,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>br.dev.hygino.app.Program</mainClass>
+                  <mainClass>br.dev.hygino.app.GameApp</mainClass>
                 </transformer>
               </transformers>
             </configuration>

@@ -1,5 +1,7 @@
 package br.dev.hygino.service;
 
+import br.dev.hygino.app.exceptions.DatabaseException;
+import br.dev.hygino.app.exceptions.GameNotFoundException;
 import br.dev.hygino.db.MySQLConfig;
 import br.dev.hygino.dto.RequestGameDto;
 import br.dev.hygino.model.Game;
@@ -50,7 +52,7 @@ public class GameService {
             System.out.println("Game inserido com sucesso!");
 
         } catch (SQLException e) {
-            System.out.println("Erro ao inserir o Jogo!");
+            throw new DatabaseException("Erro ao inserir o Jogo!", e);
         }
     }
 
@@ -86,27 +88,40 @@ public class GameService {
             }
 
         } catch (SQLException e) {
-            System.out.println("Erro ao atualizar o jogo!");
-            e.printStackTrace();
+            throw new DatabaseException("Erro ao atualizar o jogo!", e);
         }
     }
 
     public List<Game> findGames(String name, String platform, String personalCode) {
+
         List<Game> gameList = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM Game WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
 
-        String sql = """
-                SELECT * FROM Game
-                WHERE LOWER(name) LIKE LOWER(CONCAT('%', IFNULL(?, name), '%'))
-                AND LOWER(platform) = LOWER(IFNULL(?, platform))
-                AND LOWER(personal_code) = LOWER(IFNULL(?, personal_code))
-                """;
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND LOWER(name) LIKE LOWER(?) ");
+            params.add("%" + name + "%");
+        }
 
-        try (Connection conn = MySQLConfig.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, name);
-            ps.setString(2, platform);
-            ps.setString(3, personalCode);
+        if (platform != null && !platform.isBlank()) {
+            sql.append(" AND LOWER(platform) = LOWER(?) ");
+            params.add(platform);
+        }
+
+        if (personalCode != null && !personalCode.isBlank()) {
+            sql.append(" AND LOWER(personal_code) = LOWER(?) ");
+            params.add(personalCode);
+        }
+
+        try (Connection conn = MySQLConfig.getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            // Define parâmetros dinamicamente
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
 
             try (ResultSet rs = ps.executeQuery()) {
+
                 while (rs.next()) {
                     Game game = new Game(
                             rs.getLong("id"),
@@ -117,14 +132,17 @@ public class GameService {
                             rs.getString("developer"),
                             rs.getString("personal_code"),
                             rs.getObject("created_at", LocalDateTime.class),
-                            rs.getObject("updated_at", LocalDateTime.class));
+                            rs.getObject("updated_at", LocalDateTime.class)
+                    );
 
                     gameList.add(game);
                 }
             }
+
             return gameList;
+
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar os jogos!", e);
+            throw new DatabaseException("Erro ao buscar os jogos!", e);
         }
     }
 
@@ -139,11 +157,11 @@ public class GameService {
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected == 0) {
-                throw new RuntimeException("Nenhum jogo encontrado com id: " + id);
+                throw new GameNotFoundException("Nenhum jogo encontrado com id: " + id);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao remover o jogo!", e);
+            throw new DatabaseException("Erro ao remover o jogo!", e);
         }
     }
 }
